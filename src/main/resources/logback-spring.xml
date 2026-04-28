@@ -1,0 +1,71 @@
+<configuration>
+
+    <springProperty scope="context" name="server.name" source="spring.application.name"/>
+
+    <property name="LOG_DIR" value="logs"/>
+    <property name="LOG_FILE" value="${LOG_DIR}/${server.name}.json"/>
+
+    <appender name="FILE-JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${server.name}.%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- Lepiej pod ELK: @timestamp w ISO + Z -->
+                <timestamp>
+                    <fieldName>@timestamp</fieldName>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+
+                <!-- Standardowe pola jako osobne pola JSON (bez ręcznego klejenia) -->
+                <logLevel fieldName="level"/>
+                <threadName fieldName="thread"/>
+                <loggerName fieldName="logger"/>
+                <message fieldName="message"/>
+                <arguments/> <!-- gdy logujesz "x {}", warto -->
+
+                <!-- Stałe pole -->
+                <pattern>
+                    <pattern>{"service":"${server.name}"}</pattern>
+                </pattern>
+
+                <!-- MDC jako obiekt -->
+                <mdc fieldName="mdc"/>
+
+                <!-- (Opcjonalnie, ale polecam) płaskie pola do szybkich filtrów w Kibanie -->
+                <pattern>
+                    <pattern>
+                        {
+                        "traceId":"%X{traceId:-}",
+                        "spanId":"%X{spanId:-}",
+                        "requestId":"%X{requestId:-}",
+                        "userId":"%X{userId:-}",
+                        "tenantId":"%X{tenantId:-}"
+                        }
+                    </pattern>
+                </pattern>
+
+                <stackTrace/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- Konsola tekstowa dla dev (opcjonalna, ale wygodna) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] trace=%X{traceId:-} span=%X{spanId:-} %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE-JSON"/>
+    </root>
+
+</configuration>

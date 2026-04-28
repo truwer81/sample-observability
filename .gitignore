@@ -1,0 +1,44 @@
+### IntelliJ IDEA ###
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+/target/
+/logs/
+*.log
+.env
+.env.*
+!.env.example
+observability/.env
+observability/.env.*
+!observability/.env.example
+observability/secrets/*
+!observability/secrets/.gitignore
+!observability/secrets/*.example
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+/.idea/vcs.xml
+
+.idea/

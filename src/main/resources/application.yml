@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: hello
+
+logging:
+  level:
+    root: INFO
+    com.example.hello: DEBUG
+  # Te patterny działają tylko przy domyślnej konfiguracji Logbacka.
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-},%X{requestId:-}] "
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] ${logging.pattern.correlation}%logger{36} - %msg%n"
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+  endpoint:
+    health:
+      show-details: always
